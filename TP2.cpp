@@ -11,13 +11,46 @@ struct Componente
     char marca[50];
     int consumo;
 };
-struct Nodo
+struct NodoComponente
 {
     Componente info; //estructura del componente
-    Nodo* sgte; //apuntador al siguiente nodo
+    NodoComponente* sgte; //apuntador al siguiente NodoComponente
 };
 
+void insertarOrdenado(NodoComponente*& lista, Componente c){
+    //crear el vector de direcciones
+    NodoComponente* nuevo = new NodoComponente(); // creacion de un nuevo NodoComponente
+    nuevo->info = c; //adquiere el valor del parametro en info
+    nuevo->sgte = NULL; // pasa al siguiente NodoComponente que sera NULL
+     NodoComponente* anterior = NULL; //declaro un NodoComponente NULL
+     NodoComponente* aux = lista;
+     while(aux!= NULL && aux ->info.id < c.id){
+         anterior = aux;
+         aux = aux -> sgte;
+     }
+     if(anterior== NULL){
+         lista=nuevo;
+     }else{
+         anterior ->sgte = nuevo;
+     }
+     nuevo ->sgte = aux;
+}
+void mostrarLista(NodoComponente* lista){
+    while (lista != NULL){
+        std::cout << lista->info.id << " ";
+        lista = lista->sgte;
+    }
+    std::cout << std::endl;
+}
 
+void liberarLista(NodoComponente*& lista){
+    NodoComponente* aux;
+    while(lista!=NULL){
+        aux = lista;
+        lista = lista -> sgte;
+        delete aux;
+    }
+}
 
 int main(){
     int opcion = 0;
@@ -30,7 +63,7 @@ int main(){
         switch (opcion)
         {
             case 1:
-            //funcion de cargar y procesar datos
+            //funcion de cargar/leer datos
             break;
             case 2:
             //funcion de mostrar resultados
