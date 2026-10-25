@@ -5,10 +5,10 @@
 struct Componente
 {
     int id;
-    char tipo[50];
+    char tipo[51];
     int codigo;
-    char modelo[50];
-    char marca[50];
+    char modelo[51];
+    char marca[51];
     int consumo;
 };
 struct NodoComponente
