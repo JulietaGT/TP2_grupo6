@@ -52,6 +52,86 @@ void liberarLista(NodoComponente*& lista){
     }
 }
 
+
+struct NodoMarca {
+    char nombre[51];
+    int cant;          
+    NodoMarca* sgte;   
+};
+
+NodoMarca* buscarMarca(NodoMarca* lista, const char* nombre) {
+    
+    while (lista != NULL && strcmp(lista->nombre, nombre) != 0) {
+        lista = lista->sgte;
+    }
+    return lista; 
+}
+
+void agregarMarca(NodoMarca*& lista, const char* nombre) {
+    
+    NodoMarca* nuevo = new NodoMarca();
+    strcpy(nuevo->nombre, nombre); 
+    nuevo->cant = 1;               
+    nuevo->sgte = NULL;            
+
+    if (lista == NULL) {
+         
+        lista = nuevo;
+    } else {
+
+        NodoMarca* aux = lista;
+        while (aux->sgte != NULL) {
+            aux = aux->sgte;
+        }
+        aux->sgte = nuevo;
+    }
+}
+
+void liberarMarcas(NodoMarca*& lista) {
+    while (lista != NULL) {
+        NodoMarca* aux = lista;   
+        lista = lista->sgte;      
+        delete aux;               
+    }
+}
+
+bool fabricanteMasFrecuente(NodoComponente* vectorCategorias[], char resultado[]) {
+    NodoMarca* marcas = NULL; 
+
+    
+    for (int i = 0; i < 20; i++) {
+        NodoComponente* p = vectorCategorias[i]; 
+        while (p != NULL) {
+            // ¿Ya anotamos esta marca?
+            NodoMarca* m = buscarMarca(marcas, p->info.marca);
+            if (m != NULL) {
+                m->cant++;                              
+            } else {
+                agregarMarca(marcas, p->info.marca);    
+            }
+            p = p->sgte; 
+        }
+    }
+
+    if (marcas == NULL) {
+        return false;
+    }
+
+    NodoMarca* mejor = marcas;
+    for (NodoMarca* q = marcas->sgte; q != NULL; q = q->sgte) {
+        if (q->cant > mejor->cant) {
+            mejor = q;
+        }
+    }
+    strcpy(resultado, mejor->nombre); // devolvemos el nombre ganador
+
+  
+    liberarMarcas(marcas);
+    return true;
+}
+
+
+
 int main(){
     int opcion = 0;
     do {
