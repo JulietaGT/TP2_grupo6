@@ -130,6 +130,42 @@ bool fabricanteMasFrecuente(NodoComponente* vectorCategorias[], char resultado[]
     return true;
 }
 
+bool promedioConsumoCategoria(NodoComponente* lista, double& promedio) {
+    int suma = 0;
+    int cantidad = 0;
+
+    while (lista != NULL) {
+        suma += lista->info.consumo;
+        cantidad++;
+        lista = lista->sgte;
+    }
+
+    if (cantidad == 0) {
+        promedio = 0;
+        return false;
+    }
+
+    promedio = (double)suma / cantidad;
+    return true;
+}
+
+bool componenteMayorConsumo(NodoComponente* vectorCategorias[], Componente& resultado) {
+    bool hayDatos = false;
+
+    for (int i = 0; i < 20; i++) {
+        NodoComponente* p = vectorCategorias[i];
+        while (p != NULL) {
+            if (!hayDatos || p->info.consumo > resultado.consumo) {
+                resultado = p->info;
+                hayDatos = true;
+            }
+            p = p->sgte;
+        }
+    }
+
+    return hayDatos;
+}
+
 bool generarArchivo(const char* nombreArchivo) {
     const int cantidad = 7;
 
