@@ -130,29 +130,125 @@ bool fabricanteMasFrecuente(NodoComponente* vectorCategorias[], char resultado[]
     return true;
 }
 
+bool generarArchivo(const char* nombreArchivo) {
+    const int cantidad = 7;
 
+    Componente datos[cantidad] = {
+        {30, "Procesador",     0, "CPU-A", "Intel",    65},
+        {10, "Procesador",     0, "CPU-B", "AMD",      95},
+        {20, "Procesador",     0, "CPU-C", "Intel",   125},
+        {40, "Procesador",     0, "CPU-D", "AMD",      65},
+        {60, "Placa de video", 1, "GPU-A", "NVIDIA",  200},
+        {50, "Placa de video", 1, "GPU-B", "AMD",     200},
+        {70, "Disco SSD",      2, "SSD-A", "Kingston", 5}
+    };
 
-int main(){
-    int opcion = 0;
-    do {
-        std::cout<<"1) Cargar y procesar datos de componentes"<<std::endl;
-        std::cout<<"2) Mostrar resultados"<<std::endl;
-        std::cout<<"3) Salir del programa"<<std::endl;
-        std::cout<<"Ingrese una opcion: ";
-        std::cin>>opcion;
-        switch (opcion)
-        {
-            case 1:
-            //funcion de cargar/leer datos
-            break;
-            case 2:
-            //funcion de mostrar resultados
-            break;
-            case 3:
-            //funcion de salida
-            break;
-        };
+    std::FILE* archivo = std::fopen(nombreArchivo, "wb");
+
+    if (archivo == NULL) {
+        std::cout << "No se pudo crear el archivo." << std::endl;
+        return false;
     }
-    while (opcion != 3);
+
+    bool escrituraCorrecta =
+        std::fwrite(datos, sizeof(Componente), cantidad, archivo)
+        == cantidad;
+
+    int resultadoCierre = std::fclose(archivo);
+
+    if (!escrituraCorrecta || resultadoCierre != 0) {
+        std::cout << "No se pudo guardar el archivo." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+void liberarVector(NodoComponente* vectorCategorias[]) {
+    for (int i = 0; i < 20; i++) {
+        liberarLista(vectorCategorias[i]);
+    }
+}
+
+bool cargarDatos(NodoComponente* vectorCategorias[],
+                 const char* nombreArchivo) {
+    std::FILE* archivo = std::fopen(nombreArchivo, "rb");
+
+    if (archivo == NULL) {
+        std::cout << "No se pudo abrir el archivo." << std::endl;
+        return false;
+    }
+
+    // Borramos la carga anterior para evitar duplicados.
+    liberarVector(vectorCategorias);
+
+    Componente c;
+
+    while (std::fread(&c, sizeof(Componente), 1, archivo) == 1) {
+        if (c.codigo < 0 || c.codigo >= 20) {
+            std::fclose(archivo);
+            liberarVector(vectorCategorias);
+            std::cout << "Codigo de categoria invalido." << std::endl;
+            return false;
+        }
+
+        insertarOrdenado(vectorCategorias[c.codigo], c);
+    }
+
+    bool lecturaCorrecta = std::feof(archivo) != 0;
+    int resultadoCierre = std::fclose(archivo);
+
+    if (!lecturaCorrecta || resultadoCierre != 0) {
+        liberarVector(vectorCategorias);
+        std::cout << "No se pudo completar la carga." << std::endl;
+        return false;
+    }
+
+
+    return true;
+}
+
+int main() {
+    const int CANT_CATEGORIAS = 20;
+    NodoComponente* vectorCategorias[CANT_CATEGORIAS];
+
+    // Todas las listas comienzan vacias.
+    for (int i = 0; i < CANT_CATEGORIAS; i++) {
+        vectorCategorias[i] = NULL;
+    }
+
+    // Creamos el archivo con los datos de prueba.
+    if (!generarArchivo("componentes.dat")) {
+        return 1;
+    }
+
+    int opcion = 0;
+
+    do {
+        std::cout << "1) Cargar y procesar datos de componentes"
+                  << std::endl;
+        std::cout << "2) Mostrar resultados" << std::endl;
+        std::cout << "3) Salir del programa" << std::endl;
+        std::cout << "Ingrese una opcion: ";
+        std::cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                if (cargarDatos(vectorCategorias, "componentes.dat")) {
+                    std::cout << "Datos cargados correctamente."
+                              << std::endl;
+                }
+                break;
+
+            case 2:
+                // Aqui se conectara la funcion del integrante 3.
+                break;
+
+            case 3:
+                liberarVector(vectorCategorias);
+                break;
+        }
+    } while (opcion != 3);
+
     return 0;
 }
