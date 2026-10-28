@@ -244,16 +244,80 @@ bool cargarDatos(NodoComponente* vectorCategorias[],
     return true;
 }
 
+int contarLista(NodoComponente* lista) {
+    int cont = 0;
+    while (lista != NULL) {
+        cont++;
+        lista = lista->sgte;
+    }
+    return cont;
+}
+
+int totalComponentes(NodoComponente* vectorCategorias[]) {
+    int total = 0;
+    for (int i = 0; i < 20; i++) {
+        total += contarLista(vectorCategorias[i]);
+    }
+    return total;
+}
+
+int categoriaMasPoblada(NodoComponente* vectorCategorias[]) {
+    int mejorCat = -1;
+    int mejorCant = 0;
+    for (int i = 0; i < 20; i++) {
+        int cant = contarLista(vectorCategorias[i]);
+        if (cant > mejorCant) {
+            mejorCant = cant;
+            mejorCat = i;
+        }
+    }
+    return mejorCat;
+}
+
+void mostrarResultados(NodoComponente* vectorCategorias[]) {
+    int total = totalComponentes(vectorCategorias);
+
+    if (total == 0) {
+        std::cout << "No hay datos cargados. Use la opcion 1 primero." << std::endl;
+        return;
+    }
+
+    std::cout << "Total de componentes: " << total << std::endl;
+
+    std::cout << "Componentes y consumo promedio por categoria:" << std::endl;
+    for (int i = 0; i < 20; i++) {
+        double prom;
+        std::cout << "  Categoria " << i << ": "
+                  << contarLista(vectorCategorias[i]) << " componentes";
+        if (promedioConsumoCategoria(vectorCategorias[i], prom))
+            std::cout << ", promedio " << prom << " W";
+        else
+            std::cout << ", sin datos";
+        std::cout << std::endl;
+    }
+
+    std::cout << "Categoria con mas componentes: "
+              << categoriaMasPoblada(vectorCategorias) << std::endl;
+
+    char fab[51];
+    if (fabricanteMasFrecuente(vectorCategorias, fab))
+        std::cout << "Fabricante mas frecuente: " << fab << std::endl;
+
+    Componente mayor;
+    if (componenteMayorConsumo(vectorCategorias, mayor))
+        std::cout << "Mayor consumo: modelo " << mayor.modelo
+                  << ", ID " << mayor.id
+                  << " (" << mayor.consumo << " W)" << std::endl;
+}
+
 int main() {
     const int CANT_CATEGORIAS = 20;
     NodoComponente* vectorCategorias[CANT_CATEGORIAS];
 
-    // Todas las listas comienzan vacias.
     for (int i = 0; i < CANT_CATEGORIAS; i++) {
         vectorCategorias[i] = NULL;
     }
 
-    // Creamos el archivo con los datos de prueba.
     if (!generarArchivo("componentes.dat")) {
         return 1;
     }
@@ -277,7 +341,7 @@ int main() {
                 break;
 
             case 2:
-                // Aqui se conectara la funcion del integrante 3.
+                 mostrarResultados(vectorCategorias);
                 break;
 
             case 3:
